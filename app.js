@@ -5,8 +5,6 @@ const express       = require('express'),
       cookieParser  = require('cookie-parser'),
       bodyParser    = require('body-parser'),
       indexRoute    = require('./routes/index'),
-      multer        = require("multer"),
-      upload        = multer(),
       config        = require('./config'),
       session       = require("express-session");
 
@@ -26,7 +24,7 @@ app.set('view engine', 'ejs');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+//app.use(logger('dev'));
 // ---- Set up body parser so that audio files can also be read --- //
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));

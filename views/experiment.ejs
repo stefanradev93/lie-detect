@@ -1,5 +1,7 @@
 <% include partials/header %>
 
+<body class>
+
 <!-- Scale -->
 <div class="ui stackable container centered-on-screen">
   <div class="ui stackable grid container center aligned">
@@ -64,7 +66,7 @@
 <div class="ui vertical footer segment">
   <form class="ui form" method="GET" action="end">
     <button class="ui right labeled icon red button" type="submit">
-      <i class="window close outline icon"></i>
+      <i class="sign out icon"></i>
       Beenden
     </button>
 </div>
@@ -102,7 +104,9 @@
   </div>
 </div>
 
-<script src="/scripts/RecordRTC.js"></script>
+<!-- Load thirs party scripts -->
+<script type="text/javascript" src="javascripts/siriwave.js"></script>
+<script type="text/javascript" src="javascripts/RecordRTC.min.js"></script>
 <script type="text/javascript">
 // --- Custom script --- //
 
@@ -133,11 +137,13 @@ function onRecorderTimeout() {
     var recorded = currentItem.inverted;
   }
 
+  // Create form data
   var data = new FormData();
   data.append('blob', blob);
   data.append('response', response);
   data.append('item', item);
   data.append('recorded', recorded);
+  data.append('label', true);
 
   // Create a request instance and send to server
   var xhr = new XMLHttpRequest();
@@ -147,7 +153,7 @@ function onRecorderTimeout() {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
         // Redirect
-        window.location = '/questionnaire';
+        window.location = '/experiment';
       }
       else {
         // handle error
