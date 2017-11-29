@@ -1,24 +1,61 @@
-<% include partials/header_main %>
+<% include partials/header %>
 
-<div class="pusher">
-  <div class="ui stackable container centered-on-screen">
-    <div class="ui stackable grid container center aligned">
-      <div class="one column row">
-        <div class="column">
-          <div class="ui text container">
+<body class="main">
+
+  <div class="wrap">
+    <div class="ui stackable container">
+      <div class="ui stackable grid container center aligned">
+        <div class="one column row">
+          <div class="column">
             <h1 class="ui inverted header">
               Willkommen zu der Lügen-Detektionsstudie!
             </h1>
-            <h2>Hier geht's los!</h2>
-            <a href="register">
-              <div class="ui blue huge button">Zum Experiment
-                <i class="right arrow icon"></i>
+            <div class="ui left aligned raised padded text segment" id="info">
+              <p>Wir	freuen	uns	über	Ihr	Interesse	an	der	Studie	teilzunehmen!</p>
+              <p>
+              Im	Rahmen	eines	Forschungsprojekts	des	psychologischen	Instituts	in	Heidelberg	versuchen
+              wir	mittels	künstlicher	Intelligenz	vorherzusagen	ob	Personen	Lügen	oder	die	Wahrheit
+              sagen.
+              </p>
+              <p>
+              Wir	möchten	Sie	gleich	zu	Beginn	darauf	hinweisen,	dass	Sie	zur	Teilnahme	ein
+              funktionsfähiges	Mikrofon	benötigen.	Sofern	Sie	an	der	Untersuchung	teilnehmen	möchten,
+              wird	auf	der	nächsten	Seite	getestet,	ob	Sie	ein	Mikrofon	besitzen	und	Sie	werden	einmalig
+              aufgefordert,	die	Aufnahme	durch	das	Mikrofon	zu	akzeptieren.
+              </p>
+              <p>
+              Wir	möchten	Sie	gleich	zu	Beginn	darauf	hinweisen,	dass	Sie	zur	Teilnahme	ein
+              funktionsfähiges	Mikrofon	benötigen.
+              </p>
+              <p>
+              Alle	Daten,	die	im	Rahmen	der	Studie	erhoben	werden,	werden	anonymisiert	behandelt	und
+              ausschließlich	zu	wissenschaftlichen	Zwecken	verwendet.	Sie	haben	die	Möglichkeit	die
+              Studie	jederzeit	abzubrechen.
+              </p>
+              <p>Bei	Fragen	oder	Unklarheiten	wenden	Sie	sich	gerne	per	Mail	an:
+              liedetect@psychologie.uni-heidelberg.de.</p>
+              <p>Bitte	geben	Sie	Ihre	Zustimmung,	sofern	Sie	an	der	Untersuchung	teilnehmen	möchten:</p>
+              <hr>
+              <div class="ui center aligned container">
+                <form class="ui form" action="register" method="GET">
+                  <div class="field">
+                    <div class="ui checkbox">
+                      <input tabindex="0" class="hidden" type="checkbox" id="agree" required>
+                      <label for="agree">Ich erkläre mich bereit, an der Studie teilzunehmen</label>
+                    </div>
+                  </div>
+                  <button class="ui blue button" type="submit">
+                    Weiter
+                    <i class="right arrow icon"></i>
+                  </button>
+                </form>
               </div>
-            </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
+
 <% include partials/footer %>

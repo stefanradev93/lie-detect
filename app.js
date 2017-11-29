@@ -1,26 +1,24 @@
-
 const express       = require('express'),
       path          = require('path'),
       favicon       = require('serve-favicon'),
       logger        = require('morgan'),
       cookieParser  = require('cookie-parser'),
       bodyParser    = require('body-parser'),
-      fse           = require("fs-extra"),
-      https         = require("https"),
+      indexRoute    = require('./routes/index'),
       multer        = require("multer"),
       upload        = multer(),
-      session       = require("express-session"),
-      {mongoose}    = require("./db/mongoose-config");
+      config        = require('./config'),
+      session       = require("express-session");
 
 
-// --- Import experiment route --- //
-const index = require('./routes/index');
+
 
 // --- Initialize express --- //
 const app = express();
 
-// --- Serve public directory
+// --- Serve public directory and make sure
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/scripts', express.static(__dirname + '/node_modules/recordrtc/'));
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -43,24 +41,26 @@ app.use(session({
   saveUninitialized: false,
   resave: false
 }));
+
 // --- Disable caching of page --- //
 app.use(function(req, res, next) {
   res.set('Cache-Control', 'no-cache, private, no-store, must-revalidate, max-stale=0, post-check=0, pre-check=0');
   next();
 });
 
-app.use('/', index);
+// --- Server index and experiment --- //
+app.use('/', indexRoute);
 
 // --- HTTP request error handling --- //
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  var err = new Error('Not Found');
+app.use((req, res, next) => {
+  let err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

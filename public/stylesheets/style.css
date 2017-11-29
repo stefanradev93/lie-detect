@@ -1,8 +1,24 @@
 
 body.main {
   background-image: linear-gradient(0deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent), linear-gradient(90deg, transparent 24%, rgba(255, 255, 255, .05) 25%, rgba(255, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(255, 255, 255, .05) 75%, rgba(255, 255, 255, .05) 76%, transparent 77%, transparent);
-  height:100%;
   background-size:50px 50px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.wrap {
+  margin-top: 5em;
+  flex: 1 0 auto;
+}
+
+.ui.footer {
+  flex-shrink: 0;
+  padding: 20px;
+}
+
+#info {
+  font-size: 1.2em;
 }
 
 .centered-on-screen {
@@ -10,11 +26,6 @@ body.main {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-}
-
-.ui.center.aligned.segment {
-  min-height: 100%;
-  padding-top: 10em;
 }
 
 #siri-container {
@@ -27,8 +38,4 @@ body.main {
 
 .question {
   margin-bottom: 1em;
-}
-
-.footer {
-  text-align: right;
 }

@@ -5,7 +5,10 @@ const mongoose = require("mongoose")
 mongoose.Promise = global.Promise;
 
 // --- Connect to database --- //
-mongoose.connect(config.MONGODB_URI).then(() => {
+mongoose.connect(config.MONGODB_URI, {
+  useMongoClient: true
+})
+.then(() => {
   console.log(`MongoDB server running at ${config.MONGODB_URI}...`);
 }, (e) => {
   console.log("Could not connect to database:", e);
