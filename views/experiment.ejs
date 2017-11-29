@@ -3,72 +3,66 @@
 <body class>
 
 <!-- Scale -->
-<div class="ui stackable container centered-on-screen">
-  <div class="ui stackable grid container center aligned">
-    <div class="one column row">
-      <div class="column">
-        <div class="ui raised padded text container">
-          <h3><%= item.content %></h3>
+<div class="question-wrap">
+  <div class="ui stackable container">
+    <div class="ui stackable grid container center aligned">
+      <div class="one column row">
+        <div class="column">
+          <div class="ui raised padded text container">
+            <h3><%= item.content %></h3>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="one column row">
-      <div class="column">
-        <div class="ui segment">
-          <div class="ui stackable grid container center aligned">
-            <div class="five column row">
-              <div class="column">
-                <div class="ui radio checkbox">
-                  <input name="response" type="radio" value="-2" id="-2">
-                  <label for="-2">Stimme nicht zu</label>
+      <div class="one column row">
+        <div class="column">
+          <div class="ui segment">
+            <div class="ui stackable grid container center aligned">
+              <div class="five column row">
+                <div class="column">
+                  <div class="ui radio checkbox">
+                    <input name="response" type="radio" value="-2" id="-2">
+                    <label for="-2">Stimme nicht zu</label>
+                  </div>
                 </div>
-              </div>
-              <div class="column">
-                <div class="ui radio checkbox">
-                  <input name="response" type="radio" value="-1" id="-1">
-                  <label for="-1">Stimme eher nicht zu</label>
+                <div class="column">
+                  <div class="ui radio checkbox">
+                    <input name="response" type="radio" value="-1" id="-1">
+                    <label for="-1">Stimme eher nicht zu</label>
+                  </div>
                 </div>
-              </div>
-              <div class="column">
-                <div class="ui radio checkbox">
-                  <input name="response" type="radio" value="0" checked id="0">
-                  <label for="0">Weder noch</label>
+                <div class="column">
+                  <div class="ui radio checkbox">
+                    <input name="response" type="radio" value="0" checked id="0">
+                    <label for="0">Weder noch</label>
+                  </div>
                 </div>
-              </div>
-              <div class="column">
-                <div class="ui radio checkbox">
-                  <input name="response" type="radio" value="1" id="1">
-                  <label for="1">Stimme eher zu</label>
+                <div class="column">
+                  <div class="ui radio checkbox">
+                    <input name="response" type="radio" value="1" id="1">
+                    <label for="1">Stimme eher zu</label>
+                  </div>
                 </div>
-              </div>
-              <div class="column">
-                <div class="ui radio checkbox">
-                  <input name="response" type="radio" value="2" id="2">
-                  <label for="2">Stimme zu</label>
+                <div class="column">
+                  <div class="ui radio checkbox">
+                    <input name="response" type="radio" value="2" id="2">
+                    <label for="2">Stimme zu</label>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-    <div class="row">
-      <div class="two wide row">
-        <button id="response-trigger" class="ui large right labeled icon blue button">
-          <i class="right arrow icon"></i>
-          Weiter
-        </button>
+      <div class="row">
+        <div class="two wide row">
+          <button id="response-trigger" class="ui large right labeled icon blue button">
+            <i class="right arrow icon"></i>
+            Weiter
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
-
-<div class="ui vertical footer segment">
-  <form class="ui form" method="GET" action="end">
-    <button class="ui right labeled icon red button" type="submit">
-      <i class="sign out icon"></i>
-      Beenden
-    </button>
 </div>
 
 <!-- Modal window -->
@@ -238,4 +232,5 @@ var siriWave = new SiriWave({
   // Obtain current item
   var currentItem = <%- JSON.stringify(item) %>;
 </script>
-<% include partials/footer %>
+
+<% include partials/exp_footer %>
