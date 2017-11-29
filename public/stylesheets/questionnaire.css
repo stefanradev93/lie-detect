@@ -1,0 +1,27 @@
+
+.ui.center.aligned.segment {
+  min-height: 100%;
+  padding-top: 10em;
+}
+/*
+.masthead h1.ui.header {
+  font-size: 3em;
+}
+
+.ui.inverted.centered.segment {
+  min-height: 100%;
+  padding: 3em 3em;
+}
+*/
+#scale {
+  font-size: 3em;
+}
+
+.question {
+  padding-bottom: 20px;
+}
+
+
+#siri-container {
+  visibility: hidden;
+}

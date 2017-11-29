@@ -1,0 +1,58 @@
+<% include partials/header_main %>
+
+
+<div class="ui stackable container centered-on-screen">
+  <div class="ui horizontal divider">Biografische Daten</div>
+  <div class="ui stackable grid container center aligned">
+    <div class="one column row">
+      <div class="eight wide column">
+        <form class="ui form" method="POST" action="register">
+          <div class="field">
+            <label>Alter</label>
+            <input name="age" placeholder="Alter" type="text" pattern="\d*" required>
+          </div>
+          <div class="field">
+            <label>Beruf</label>
+            <input name="education" placeholder="z.B. Studierende" type="text" required>
+          </div>
+          <div class="field">
+            <label>Geschlecht</label>
+            <div class="ui selection dropdown">
+              <input name="gender" type="hidden" value="2">
+              <i class="dropdown icon"></i>
+              <div class="default text">Keine Angabe</div>
+              <div class="menu">
+                <div class="item" data-value="0">Weiblich</div>
+                <div class="item" data-value="1">Männlich</div>
+                <div class="item" data-value="2">Keine Angabe</div>
+              </div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Muttersprache</label>
+            <div class="ui selection dropdown">
+              <input name="language" type="hidden" value="1">
+              <i class="dropdown icon"></i>
+              <div class="default text">Deutsch</div>
+              <div class="menu">
+                <div class="item" data-value="1">Deutsch</div>
+                <div class="item" data-value="0">Andere</div>
+              </div>
+            </div>
+          </div>
+          <button class="ui right labeled icon blue button" type="submit">
+            <i class="right arrow icon"></i>
+            Weiter
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $('.ui.dropdown').dropdown();
+  $('.ui.form').form();
+</script>
+
+<% include partials/footer %>

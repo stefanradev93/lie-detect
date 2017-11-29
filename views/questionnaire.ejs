@@ -1,0 +1,235 @@
+<% include partials/header %>
+
+<!-- Scale -->
+<div class="ui stackable container centered-on-screen">
+  <div class="ui stackable grid container center aligned">
+    <div class="one column row">
+      <div class="column">
+        <div class="ui raised padded text container">
+          <h3><%= item.content %></h3>
+        </div>
+      </div>
+    </div>
+    <div class="one column row">
+      <div class="column">
+        <div class="ui segment">
+          <div class="ui stackable grid container center aligned">
+            <div class="five column row">
+              <div class="column">
+                <div class="ui radio checkbox">
+                  <input name="response" type="radio" value="-2" id="-2">
+                  <label for="-2">Stimme nicht zu</label>
+                </div>
+              </div>
+              <div class="column">
+                <div class="ui radio checkbox">
+                  <input name="response" type="radio" value="-1" id="-1">
+                  <label for="-1">Stimme eher nicht zu</label>
+                </div>
+              </div>
+              <div class="column">
+                <div class="ui radio checkbox">
+                  <input name="response" type="radio" value="0" checked id="0">
+                  <label for="0">Weder noch</label>
+                </div>
+              </div>
+              <div class="column">
+                <div class="ui radio checkbox">
+                  <input name="response" type="radio" value="1" id="1">
+                  <label for="1">Stimme eher zu</label>
+                </div>
+              </div>
+              <div class="column">
+                <div class="ui radio checkbox">
+                  <input name="response" type="radio" value="2" id="2">
+                  <label for="2">Stimme zu</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="two wide row">
+        <button id="response-trigger" class="ui large right labeled icon blue button">
+          <i class="right arrow icon"></i>
+          Weiter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ui vertical footer segment">
+  <form class="ui form" method="GET" action="end">
+    <button class="ui right labeled icon red button" type="submit">
+      <i class="window close outline icon"></i>
+      Beenden
+    </button>
+</div>
+
+<!-- Modal window -->
+<div class="ui modal">
+  <div class="ui stackable grid container center aligned">
+    <div class="row">
+      <div class="sixteen wide column">
+        <div class="ui raised padded text container">
+          <h3>Bitte sprechen Sie die folgende Aussage:</h3>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="sixteen wide column">
+        <div class="ui raised padded text container">
+          <h2 id="to-repeat"><em></em></h2>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="sixteen wide column">
+        <div class="ui raised container">
+          <div id="siri-container">
+            <!-- Wave animation will play here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="record-trigger" class="ui bottom attached blue button">
+    <i class="unmute icon"></i>
+    Aufnahme starten
+  </div>
+</div>
+
+<script src="/scripts/RecordRTC.js"></script>
+<script type="text/javascript">
+// --- Custom script --- //
+
+
+// --- Function definitions --- //
+function captureUserMedia(successCallback) {
+  // Initializes getUserMedia
+  var session = {
+      audio: true,
+      video: false
+  };
+  navigator.getUserMedia(session, successCallback, function(error) {
+      alert('Unable to capture audio. Please check console logs.');
+      console.error(error);
+  });
+};
+
+function onRecorderTimeout() {
+  // Triggered when recording time ends
+
+  // Collect all data needed for a response
+  var blob = recorder.getBlob(); // Get wav as BLOB
+  var response = Number($("input[name='response']:checked").val());
+  var item = currentItem.content;
+  if (response === -2 || response === -1) {
+    var recorded = currentItem.content;
+  } else {
+    var recorded = currentItem.inverted;
+  }
+
+  var data = new FormData();
+  data.append('blob', blob);
+  data.append('response', response);
+  data.append('item', item);
+  data.append('recorded', recorded);
+
+  // Create a request instance and send to server
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/upload');
+  xhr.send(data);
+  xhr.onreadystatechange = (event) => {
+    if (xhr.readyState === 4) {
+      if (xhr.status === 200) {
+        // Redirect
+        window.location = '/questionnaire';
+      }
+      else {
+        // handle error
+        console.log("Responded with status 200");
+      }
+    }
+  }
+
+  // Stop and hide wave
+  siriWave.stop();
+  $('#siri-container').css("visibility", 'hidden');
+  // Enable button again
+  $('#record-trigger').toggleClass("disabled");
+  // Hide popup
+  $('.ui.modal').modal('hide');
+};
+
+
+// --- Add listeners --- //
+$("#response-trigger").on("click", function(){
+
+  // Get value of checkbutton
+  var val = Number($("input[name='response']:checked").val());
+
+  // Check value and present the right question
+  if (val === 2 ) {
+    // Open 100 % and show inverted
+    $('#to-repeat').text(currentItem.inverted);
+  }
+  else if (val === -2) {
+    // Open 100 % and show content
+    $('#to-repeat').text(currentItem.content);
+  }
+  else if (val === 1) {
+    // Open 50 % and show inverted item
+    if (Math.random() > 0.5) {
+      $('#to-repeat').text(currentItem.inverted);
+    }
+  }
+  else if (val === -1) {
+    // Open 50 % and show item content
+    if (Math.random() > 0.5) {
+      $('#to-repeat').text(currentItem.content);
+    }
+  }
+  // Open up the pop-up
+  $('.ui.modal').modal({closable: false}).modal('show');
+});
+
+$('#record-trigger').on("click", function() {
+  // Show and start wave
+  captureUserMedia(function(stream) {
+      mediaStream = stream;
+      recorder = RecordRTC(stream, {
+        type: 'audio',
+        recorderType: StereoAudioRecorder,
+        mimeType: 'audio/wav'
+      });
+      // Set duration of recording
+      recorder.setRecordingDuration(REC_DURATION).onRecordingStopped(onRecorderTimeout);
+      // Start recorder
+      recorder.startRecording();
+      // Show and start wave
+      $('#siri-container').css("visibility", 'visible');
+      siriWave.start();
+  });
+  // Disable record button
+  $('#record-trigger').toggleClass("disabled");
+});
+
+var recorder = null;
+var mediaStream = null;
+var REC_DURATION = 5 * 1000; // in seconds
+var siriWave = new SiriWave({
+        container: document.getElementById('siri-container'),
+        width: 200,
+        height: 100,
+        speed: 0.02,
+        color: '#d9dde2',
+        frequency: 1
+  });
+  // Obtain current item
+  var currentItem = <%- JSON.stringify(item) %>;
+</script>
+<% include partials/footer %>
