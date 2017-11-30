@@ -102,135 +102,236 @@
 <script type="text/javascript" src="javascripts/siriwave.js"></script>
 <script type="text/javascript" src="javascripts/RecordRTC.min.js"></script>
 <script type="text/javascript">
-// --- Custom script --- //
 
+// --- Obtain current item --- //
+var currentItem = <%- JSON.stringify(item) %>;
 
-// --- Function definitions --- //
-function captureUserMedia(successCallback) {
-  // Initializes getUserMedia
-  var session = {
-      audio: true,
-      video: false
+// --- UI controller --- //
+var UIController = (function() {
+  // Create a wave object
+  var siriWave = new SiriWave({
+          container: document.getElementById('siri-container'),
+          width: 200,
+          height: 100,
+          speed: 0.02,
+          color: '#d9dde2',
+          frequency: 1
+    });
+  // Public methods
+  return {
+    lockPopUp: function() {
+      // Show container
+      $('#siri-container').css("visibility", 'visible');
+      // Disable record button
+      $('#record-trigger').toggleClass("disabled");
+      // Start wave
+      siriWave.start();
+    },
+    hidePopUp: function() {
+      // Stop wave
+      siriWave.stop();
+      // Hide siri wave
+      $('#siri-container').css("visibility", 'hidden');
+      // Enable trigger again
+      $('#record-trigger').toggleClass("disabled");
+      // Hide popup
+      $('.ui.modal').modal('hide');
+    },
+    showPopUp: function(question) {
+      // Select text to show and open up the pop-up
+      $('#to-repeat').text(question);
+      $('.ui.modal').modal({closable: false}).modal('show');
+    }
   };
-  navigator.getUserMedia(session, successCallback, function(error) {
-      alert('Unable to capture audio. Please check console logs.');
-      console.error(error);
-  });
-};
+})();
 
-function onRecorderTimeout() {
-  // Triggered when recording time ends
+var RecController = (function() {
+  // Private attributes and methods
+  var lie = null;
+  var recorder = null;
+  var mediaStream = null;
+  var REC_DURATION = 5 * 1000;
+  var captureUserMedia = function(successCallback) {
+    // Initializes getUserMedia
+    var session = {
+        audio: true,
+        video: false
+    };
+    navigator.getUserMedia(session, successCallback, function(error) {
+        alert('Unable to capture audio. Please abort experiment.');
+        console.error(error);
+    });
+  };
+  // Public methods
+  return {
+    record: function(onTimeout) {
+      /*
+      Creates a recorder and a stream, and starts recoridng
+      Accepts a callback to execute on recorder timeout
+       */
+       captureUserMedia(function(stream) {
+           // Initialize stream and recorder
+           mediaStream = stream;
+           recorder = RecordRTC(stream, {
+             type: 'audio',
+             recorderType: StereoAudioRecorder,
+             mimeType: 'audio/wav'
+           });
+           // Set duration of recording
+           recorder.setRecordingDuration(REC_DURATION).onRecordingStopped(onTimeout);
+           // Start recorder
+           recorder.startRecording();
+       });
+    },
+    getBlob: function() {
+      // Returns the recorder audio as blob
+      return recorder.getBlob();
+    }
+  };
+})();
 
-  // Collect all data needed for a response
-  var blob = recorder.getBlob(); // Get wav as BLOB
-  var response = Number($("input[name='response']:checked").val());
-  var item = currentItem.content;
-  if (response === -2 || response === -1) {
-    var recorded = currentItem.content;
-  } else {
-    var recorded = currentItem.inverted;
-  }
+var DataModel = (function() {
+  var getResponse = function() {
+    // Returns the response as a Number
+    return Number($("input[name='response']:checked").val());
+  };
+  var getItem = function() {
+    // Returns the content of the item
+    return currentItem.content;
+  };
+  var getFormData = function(recorded, blob, lie) {
+    // Returns a form data corresponding to
+    // the response model
+    var data = new FormData();
+    var response = getResponse();
+    var item = getItem();
+    // Append response and item
+    data.append('response', response);
+    data.append('item', item);
+    // If no recordinbg, simply return data
+    if (!recorded)
+      return data;
+    // Else extract recorder text and determine lie or not
+    var recordedItem = $('#to-repeat').text();
+    if (lie)
+      var label = false;
+    else
+      var label = true;
+    data.append('recorded', recordedItem);
+    data.append('blob', blob);
+    data.append('label', label);
+    return data;
+  };
+  return {
+    getResponse: getResponse,
+    getFormData: getFormData
+  };
+})();
 
-  // Create form data
-  var data = new FormData();
-  data.append('blob', blob);
-  data.append('response', response);
-  data.append('item', item);
-  data.append('recorded', recorded);
-  data.append('label', true);
+var controller = (function(UICtr, RecCtr, DataModel) {
 
-  // Create a request instance and send to server
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', '/upload');
-  xhr.send(data);
-  xhr.onreadystatechange = (event) => {
-    if (xhr.readyState === 4) {
-      if (xhr.status === 200) {
-        // Redirect
-        window.location = '/experiment';
+  // Set references to ui and rec controller
+  var LIE = null; // a flag to indicate whether the trial is a lie or not
+  var uiController = UICtr;
+  var recController = RecCtr;
+  var model = DataModel;
+
+  var sendRequest = function(data) {
+    // Create a request instance
+    var xhr = new XMLHttpRequest();
+    // Send data to /upload route
+    xhr.open('POST', '/upload');
+    xhr.send(data);
+    // Redirect to expriment again, or handle error
+    xhr.onreadystatechange = (event) => {
+      if (xhr.readyState === 4) {
+        if (xhr.status === 200)
+          window.location = '/experiment';
+        else
+          // Handle error (not really possible)
+          alert("Es gab ein Problem mit der Aufnahme. " +
+                "Bitte, stellen Sie sicher, dass Ihr Mikrofon angeschlossne ist!");
+          window.location = '/experiment';
+      }
+    }
+  };
+
+  var onRecordingFinished = function() {
+    // Triggered when recording finished
+    // Assumes blob and lie flag set
+    var blob = recController.getBlob();
+    var formData = model.getFormData(true, blob, LIE);
+    sendRequest(formData);
+    uiController.hidePopUp();
+  };
+
+
+  // Set event listener on response button
+  $("#response-trigger").on("click", function() {
+
+    var response = model.getResponse();
+
+    // Response 0
+    if (response === 0) {
+      // Simply get form data and send it to server
+      var formData = model.getFormData(false, null, null);
+      sendRequest(formData);
+    }
+    // Response -1
+    else if (response === -1) {
+      // Decide whether to show
+      if (Math.random() > 0.5) {
+        if (Math.random() > 0.5) {
+          // Lie
+          LIE = true;
+          uiController.showPopUp(currentItem.content);
+        }
+        else {
+          // Tell the truth
+          LIE = false;
+          uiController.showPopUp(currentItem.inverted);
+        }
       }
       else {
-        // handle error
-        console.log("Responded with status 200");
+        // Simply get form data and send it to server
+        var formData = model.getFormData(false, null, null);
+        sendRequest(formData);
       }
     }
-  }
-
-  // Stop and hide wave
-  siriWave.stop();
-  $('#siri-container').css("visibility", 'hidden');
-  // Enable button again
-  $('#record-trigger').toggleClass("disabled");
-  // Hide popup
-  $('.ui.modal').modal('hide');
-};
-
-
-// --- Add listeners --- //
-$("#response-trigger").on("click", function(){
-
-  // Get value of checkbutton
-  var val = Number($("input[name='response']:checked").val());
-
-  // Check value and present the right question
-  if (val === 2 ) {
-    // Open 100 % and show inverted
-    $('#to-repeat').text(currentItem.inverted);
-  }
-  else if (val === -2) {
-    // Open 100 % and show content
-    $('#to-repeat').text(currentItem.content);
-  }
-  else if (val === 1) {
-    // Open 50 % and show inverted item
-    if (Math.random() > 0.5) {
-      $('#to-repeat').text(currentItem.inverted);
+    // Response 1
+    else if (response === 1) {
+      // Decide whether to show
+      if (Math.random() > 0.5) {
+        if (Math.random() > 0.5) {
+          // Lie
+          LIE = true;
+          uiController.showPopUp(currentItem.inverted);
+        }
+        else {
+          // Tell the truth
+          LIE = false;
+          uiController.showPopUp(currentItem.content);
+        }
+      }
+      else {
+        // Simply get form data and send it to server
+        var formData = model.getFormData(false, null, null);
+        sendRequest(formData);
+      }
     }
-  }
-  else if (val === -1) {
-    // Open 50 % and show item content
-    if (Math.random() > 0.5) {
-      $('#to-repeat').text(currentItem.content);
-    }
-  }
-  // Open up the pop-up
-  $('.ui.modal').modal({closable: false}).modal('show');
-});
-
-$('#record-trigger').on("click", function() {
-  // Show and start wave
-  captureUserMedia(function(stream) {
-      mediaStream = stream;
-      recorder = RecordRTC(stream, {
-        type: 'audio',
-        recorderType: StereoAudioRecorder,
-        mimeType: 'audio/wav'
-      });
-      // Set duration of recording
-      recorder.setRecordingDuration(REC_DURATION).onRecordingStopped(onRecorderTimeout);
-      // Start recorder
-      recorder.startRecording();
-      // Show and start wave
-      $('#siri-container').css("visibility", 'visible');
-      siriWave.start();
   });
-  // Disable record button
-  $('#record-trigger').toggleClass("disabled");
-});
 
-var recorder = null;
-var mediaStream = null;
-var REC_DURATION = 5 * 1000; // in seconds
-var siriWave = new SiriWave({
-        container: document.getElementById('siri-container'),
-        width: 200,
-        height: 100,
-        speed: 0.02,
-        color: '#d9dde2',
-        frequency: 1
+  // Set event listener on record button
+  $('#record-trigger').on("click", function() {
+    // Lock record
+    uiController.lockPopUp();
+    // Record and pass on record finished callbacl
+    recController.record(onRecordingFinished);
   });
-  // Obtain current item
-  var currentItem = <%- JSON.stringify(item) %>;
+
+})(UIController, RecController, DataModel);
+
+
 </script>
 
 <% include partials/exp_footer %>

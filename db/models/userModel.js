@@ -10,23 +10,24 @@ var ResponseSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  recorded: {
-    type: String,
-    required: true
-  },
   response: {
     required: true,
     type: Number,
     max: 2,
     min: -2
   },
+  recorded: {
+    type: String,
+    required: false,
+    default: "NA"
+  },
   label: {
     type: Boolean,
-    required: true
+    required: false
   },
   wav: {
     type: String,
-    default: "",
+    default: "NA",
     required: false
   }
 },
@@ -117,11 +118,10 @@ UserSchema.methods.removeToken = function(token) {
   });
 };
 
-UserSchema.methods.addResponse = function(body) {
+UserSchema.methods.addResponseWithWav = function(body) {
   // Pushes a new response to the user's list of
   // responses and returns the path to the wav file
   // the backend is then responsible for creatign the wav
-
   let user = this;
   // Create the new response (assumes body contains the correct fields)
   let resp = new Response(body);
@@ -133,7 +133,16 @@ UserSchema.methods.addResponse = function(body) {
   user.responses.push(resp);
   user.save();
   return resp.wav;
-}
+};
+
+UserSchema.methods.addResponse = function(body) {
+  // Assumes body contains only item and response
+  let user = this;
+  // Create the new response (assumes body contains the correct fields)
+  let resp = new Response(body);
+  user.responses.push(resp);
+  return user.save();
+};
 
 UserSchema.statics.findByToken = function(token) {
   // Returns the user with the given token

@@ -111,30 +111,50 @@ router.get("/experiment", (req, res, next) => {
 /* POST upload */
 router.post("/upload", upload.single("blob"), (req, res, next) => {
 
-  // Extract body and wav blob
-  let body = _.pick(req.body, ["item", "recorded", "response", "label"]);
-  let {buffer} = _.pick(req.file, ["buffer"]);
-
-  // Find user by the token given
-  User.findByToken(req.session.userToken)
-  .then((user) => {
-    // Create a new Response
-    return user.addResponse(body)
-  })
-  .then((pathToWav) => {
-    // Create the actual wav file, pathToWav is a string describing
-    // the path to the wav file. It has the following form:
-    // ./data/userId/respId.wav
-    // Note that the folder is automatically created by fse by the first call
-    return fse.outputFile(pathToWav, Buffer.from(new Uint8Array(buffer)));
-  })
-  .then(() => {
-    res.status(200).send('Response saved!');
-  })
-  .catch((err) => {
-    console.log('Could not upload:', err);
-    res.status(401).send("Could not save!");
-  });
+  // If there wasn't any recorded response
+  if (_.isUndefined(req.body.recorded)) {
+    // Extract onlt item and response
+    var body = _.pick(req.body, ["item", "response"]);
+    // Add to responses and end
+    User.findByToken(req.session.userToken)
+    .then((user) => {
+      // User will automatically add response and decide whether to create a wav or not
+      return user.addResponse(body)
+    })
+    .then(() => {
+      // Simply set status and return
+      res.status(200).send('Response uploaded!');
+    })
+    .catch((err) => {
+      console.log('Could not upload:', err);
+      res.status(401).send("Could not save!");
+    });
+  }
+  // If there was a recorded response
+  else {
+    // Extract all aprameters and audio buffer
+    var body = _.pick(req.body, ["item", "response", "recorded", "label"]);
+    var {buffer} = _.pick(req.file, ["buffer"]);
+    User.findByToken(req.session.userToken)
+    .then((user) => {
+      // User will automatically add response and decide whether to create a wav or not
+      return user.addResponseWithWav(body)
+    })
+    .then((pathToWav) => {
+      // Create the actual wav file, pathToWav is a string describing
+      // the path to the wav file. It has the following form:
+      // ./data/userId/respId.wav
+      // Note that the folder is automatically created by fse by the first call
+      return fse.outputFile(pathToWav, Buffer.from(new Uint8Array(buffer)));
+    })
+    .then(() => {
+      res.status(200).send('Response uploaded!');
+    })
+    .catch((err) => {
+      console.log('Could not upload:', err);
+      res.status(401).send("Could not save!");
+    });
+  }
 });
 
 /* GET end of experiment */
