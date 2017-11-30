@@ -159,23 +159,29 @@ router.post("/upload", upload.single("blob"), (req, res, next) => {
 
 /* GET end of experiment */
 router.get("/end", (req, res, next) => {
-  // Find current user
-  User.findByToken(req.session.userToken)
-  .then((user) => {
-    // Remove token from user meaning user is
-    // no longer allowed to participate in this session
-    return user.removeToken(req.session.userToken);
-  })
-  .then(() => {
-    // Destroy session
-    req.session.destroy();
-    res.clearCookie(config.SESSION);
-    res.render("debrief");
-  })
-  .catch((err) => {
-    console.log("Failed to remove session", err);
-    next(err)
-  });
+  // Redirect, if no token
+  if (_.isUndefined(req.session.userToken)) {
+    res.redirect("/");
+  }
+  else {
+    // Find current user
+    User.findByToken(req.session.userToken)
+    .then((user) => {
+      // Remove token from user meaning user is
+      // no longer allowed to participate in this session
+      return user.removeToken(req.session.userToken);
+    })
+    .then(() => {
+      // Destroy session
+      req.session.destroy();
+      res.clearCookie(config.SESSION);
+      res.render("debrief");
+    })
+    .catch((err) => {
+      console.log("Failed to remove session", err);
+      next(err)
+    });
+  }
 });
 
 module.exports = router;

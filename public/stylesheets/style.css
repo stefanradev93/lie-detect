@@ -48,3 +48,9 @@ body {
 .question {
   margin-bottom: 1em;
 }
+
+.ui.image.intro {
+    -ms-transform: rotate(45deg);
+    -webkit-transform: rotate(45deg);
+    transform: rotate(45deg);
+}

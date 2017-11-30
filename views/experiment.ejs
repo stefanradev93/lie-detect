@@ -66,10 +66,11 @@
 </div>
 
 <!-- Modal window -->
-<div class="ui modal">
+<div class="ui modal rec-audio">
   <div class="ui stackable grid container center aligned">
     <div class="row">
       <div class="sixteen wide column">
+        <br>
         <div class="ui raised padded text container">
           <h3>Bitte sprechen Sie die folgende Aussage:</h3>
         </div>
@@ -98,14 +99,54 @@
   </div>
 </div>
 
+<!-- Logout modal -->
+<div class="ui modal quit-exp">
+  <div class="header">Möchten Sie das Experiment wirklich beenden?</div>
+  <div class="content">
+    <div class="ui stackable grid container">
+      <div class="column">
+        <img class="ui mini left floated image" src="/images/robot.png">
+      </div>
+      <div class="middle aligned fourteen wide column">
+        <p>Wenn Sie auf "Nein" klicken, ist das Experiment vorbei und
+        Sie dürfen nicht mehr teilnehmen.</p>
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui approve green button">Ja</div>
+    <div class="ui cancel red button">Nein</div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="ui center aligned footer container">
+  <hr>
+  <div class="ui stackable container">
+    <div class="ui grid">
+      <div class="two column row">
+        <div class="left aligned column">
+          <button class="ui right labeled icon red small button" id="logout">
+            <i class="sign out icon"></i>
+            Experiment Beenden
+          </button>
+        </div>
+        <div class="right aligned column">
+          <div class="ui container">
+            © Copyright 2017 Universität Heidelberg
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Load thirs party scripts -->
 <script type="text/javascript" src="javascripts/siriwave.js"></script>
 <script type="text/javascript" src="javascripts/RecordRTC.min.js"></script>
 <script type="text/javascript">
-
 // --- Obtain current item --- //
 var currentItem = <%- JSON.stringify(item) %>;
-
 // --- UI controller --- //
 var UIController = (function() {
   // Create a wave object
@@ -135,16 +176,24 @@ var UIController = (function() {
       // Enable trigger again
       $('#record-trigger').toggleClass("disabled");
       // Hide popup
-      $('.ui.modal').modal('hide');
+      $('.ui.modal.rec-audio').modal('hide');
     },
     showPopUp: function(question) {
       // Select text to show and open up the pop-up
       $('#to-repeat').text(question);
-      $('.ui.modal').modal({closable: false}).modal('show');
+      $('.ui.modal.rec-audio').modal({closable: false}).modal('show');
+    },
+    showLogoutPopUp: function() {
+      $('.ui.modal.quit-exp').modal({
+        closeable: false,
+        onApprove: function() {
+          window.location = '/end';
+        }
+      }).modal('show');
     }
   };
 })();
-
+// --- Recorder Controller --- //
 var RecController = (function() {
   // Private attributes and methods
   var lie = null;
@@ -189,7 +238,7 @@ var RecController = (function() {
     }
   };
 })();
-
+// --- Model --- //
 var DataModel = (function() {
   var getResponse = function() {
     // Returns the response as a Number
@@ -227,7 +276,7 @@ var DataModel = (function() {
     getFormData: getFormData
   };
 })();
-
+// --- Global controller --- //
 var controller = (function(UICtr, RecCtr, DataModel) {
 
   // Set references to ui and rec controller
@@ -264,7 +313,6 @@ var controller = (function(UICtr, RecCtr, DataModel) {
     sendRequest(formData);
     uiController.hidePopUp();
   };
-
 
   // Set event listener on response button
   $("#response-trigger").on("click", function() {
@@ -319,6 +367,32 @@ var controller = (function(UICtr, RecCtr, DataModel) {
         sendRequest(formData);
       }
     }
+    // Response 2
+    else if (response === 2) {
+      if (Math.random() > 0.5) {
+        // Lie
+        LIE = true;
+        uiController.showPopUp(currentItem.inverted);
+      }
+      else {
+        // Tell the truth
+        LIE = false;
+        uiController.showPopUp(currentItem.content);
+      }
+    }
+    // Response -2
+    else if (response === -2) {
+      if (Math.random() > 0.5) {
+        // Lie
+        LIE = true;
+        uiController.showPopUp(currentItem.content);
+      }
+      else {
+        // Tell the truth
+        LIE = false;
+        uiController.showPopUp(currentItem.inverted);
+      }
+    }
   });
 
   // Set event listener on record button
@@ -329,9 +403,13 @@ var controller = (function(UICtr, RecCtr, DataModel) {
     recController.record(onRecordingFinished);
   });
 
+  // Set event listener on logout button
+  $('#logout').on("click", function() {
+    uiController.showLogoutPopUp();
+  });
+
 })(UIController, RecController, DataModel);
-
-
 </script>
 
-<% include partials/exp_footer %>
+</body>
+</html>
