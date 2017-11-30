@@ -146,11 +146,11 @@
 <script type="text/javascript" src="javascripts/RecordRTC.min.js"></script>
 <script type="text/javascript">
 // --- Obtain current item --- //
-var currentItem = <%- JSON.stringify(item) %>;
+const currentItem = <%- JSON.stringify(item) %>;
 // --- UI controller --- //
-var UIController = (function() {
+const UIController = (function() {
   // Create a wave object
-  var siriWave = new SiriWave({
+  let siriWave = new SiriWave({
           container: document.getElementById('siri-container'),
           width: 200,
           height: 100,
@@ -194,15 +194,15 @@ var UIController = (function() {
   };
 })();
 // --- Recorder Controller --- //
-var RecController = (function() {
+const RecController = (function() {
   // Private attributes and methods
-  var lie = null;
-  var recorder = null;
-  var mediaStream = null;
-  var REC_DURATION = 5 * 1000;
-  var captureUserMedia = function(successCallback) {
+  let lie = null;
+  let recorder = null;
+  let mediaStream = null;
+  const REC_DURATION = 5 * 1000;
+  let captureUserMedia = function(successCallback) {
     // Initializes getUserMedia
-    var session = {
+    let session = {
         audio: true,
         video: false
     };
@@ -239,21 +239,21 @@ var RecController = (function() {
   };
 })();
 // --- Model --- //
-var DataModel = (function() {
-  var getResponse = function() {
+const DataModel = (function() {
+  const getResponse = function() {
     // Returns the response as a Number
     return Number($("input[name='response']:checked").val());
   };
-  var getItem = function() {
+  const getItem = function() {
     // Returns the content of the item
     return currentItem.content;
   };
-  var getFormData = function(recorded, blob, lie) {
+  const getFormData = function(recorded, blob, lie) {
     // Returns a form data corresponding to
     // the response model
-    var data = new FormData();
-    var response = getResponse();
-    var item = getItem();
+    let data = new FormData();
+    let response = getResponse();
+    let item = getItem();
     // Append response and item
     data.append('response', response);
     data.append('item', item);
@@ -261,11 +261,10 @@ var DataModel = (function() {
     if (!recorded)
       return data;
     // Else extract recorder text and determine lie or not
-    var recordedItem = $('#to-repeat').text();
+    let recordedItem = $('#to-repeat').text();
+    let label = true;
     if (lie)
-      var label = false;
-    else
-      var label = true;
+      label = false;
     data.append('recorded', recordedItem);
     data.append('blob', blob);
     data.append('label', label);
@@ -277,17 +276,17 @@ var DataModel = (function() {
   };
 })();
 // --- Global controller --- //
-var controller = (function(UICtr, RecCtr, DataModel) {
+const controller = (function(UICtr, RecCtr, DataModel) {
 
   // Set references to ui and rec controller
-  var LIE = null; // a flag to indicate whether the trial is a lie or not
-  var uiController = UICtr;
-  var recController = RecCtr;
-  var model = DataModel;
+  let LIE = null; // a flag to indicate whether the trial is a lie or not
+  const uiController = UICtr;
+  const recController = RecCtr;
+  const model = DataModel;
 
-  var sendRequest = function(data) {
+  const sendRequest = function(data) {
     // Create a request instance
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     // Send data to /upload route
     xhr.open('POST', '/upload');
     xhr.send(data);
@@ -305,11 +304,11 @@ var controller = (function(UICtr, RecCtr, DataModel) {
     }
   };
 
-  var onRecordingFinished = function() {
+  const onRecordingFinished = function() {
     // Triggered when recording finished
     // Assumes blob and lie flag set
-    var blob = recController.getBlob();
-    var formData = model.getFormData(true, blob, LIE);
+    let blob = recController.getBlob();
+    let formData = model.getFormData(true, blob, LIE);
     sendRequest(formData);
     uiController.hidePopUp();
   };
@@ -317,12 +316,12 @@ var controller = (function(UICtr, RecCtr, DataModel) {
   // Set event listener on response button
   $("#response-trigger").on("click", function() {
 
-    var response = model.getResponse();
+    let response = model.getResponse();
 
     // Response 0
     if (response === 0) {
       // Simply get form data and send it to server
-      var formData = model.getFormData(false, null, null);
+      let formData = model.getFormData(false, null, null);
       sendRequest(formData);
     }
     // Response -1
@@ -342,7 +341,7 @@ var controller = (function(UICtr, RecCtr, DataModel) {
       }
       else {
         // Simply get form data and send it to server
-        var formData = model.getFormData(false, null, null);
+        let formData = model.getFormData(false, null, null);
         sendRequest(formData);
       }
     }
@@ -363,7 +362,7 @@ var controller = (function(UICtr, RecCtr, DataModel) {
       }
       else {
         // Simply get form data and send it to server
-        var formData = model.getFormData(false, null, null);
+        let formData = model.getFormData(false, null, null);
         sendRequest(formData);
       }
     }

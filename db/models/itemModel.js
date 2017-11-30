@@ -2,7 +2,7 @@ const mongoose = require('mongoose'),
       random   = require('mongoose-random');
 
 
-var ItemSchema = mongoose.Schema({
+const ItemSchema = mongoose.Schema({
   content: {
     type: String,
     required: true,
@@ -18,6 +18,6 @@ var ItemSchema = mongoose.Schema({
 
 ItemSchema.plugin(random, {path: "r"});
 
-var Item = mongoose.model("Item", ItemSchema);
+const Item = mongoose.model("Item", ItemSchema);
 
 module.exports = {ItemSchema, Item};

@@ -114,7 +114,7 @@ router.post("/upload", upload.single("blob"), (req, res, next) => {
   // If there wasn't any recorded response
   if (_.isUndefined(req.body.recorded)) {
     // Extract onlt item and response
-    var body = _.pick(req.body, ["item", "response"]);
+    let body = _.pick(req.body, ["item", "response"]);
     // Add to responses and end
     User.findByToken(req.session.userToken)
     .then((user) => {
@@ -133,8 +133,8 @@ router.post("/upload", upload.single("blob"), (req, res, next) => {
   // If there was a recorded response
   else {
     // Extract all aprameters and audio buffer
-    var body = _.pick(req.body, ["item", "response", "recorded", "label"]);
-    var {buffer} = _.pick(req.file, ["buffer"]);
+    let body = _.pick(req.body, ["item", "response", "recorded", "label"]);
+    let {buffer} = _.pick(req.file, ["buffer"]);
     User.findByToken(req.session.userToken)
     .then((user) => {
       // User will automatically add response and decide whether to create a wav or not

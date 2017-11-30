@@ -5,7 +5,7 @@ const mongoose           = require('mongoose'),
       path               = require('path');
 
 // --- Create the item schema --- //
-var ResponseSchema = mongoose.Schema({
+const ResponseSchema = mongoose.Schema({
   item: {
     type: String,
     required: true
@@ -36,7 +36,7 @@ var ResponseSchema = mongoose.Schema({
 });
 
 // --- Create the User Schema --- //
-var UserSchema = mongoose.Schema({
+const UserSchema = mongoose.Schema({
   age: {
     type: Number,
     required: true
@@ -146,7 +146,7 @@ UserSchema.methods.addResponse = function(body) {
 
 UserSchema.statics.findByToken = function(token) {
   // Returns the user with the given token
-  var User = this;
+  let User = this;
   let decoded;
   try {
     // Try to decode a variable
@@ -166,7 +166,7 @@ UserSchema.statics.findByToken = function(token) {
   });
 };
 
-var User = mongoose.model("User", UserSchema);
-var Response = mongoose.model("Response", ResponseSchema);
+const User = mongoose.model("User", UserSchema);
+const Response = mongoose.model("Response", ResponseSchema);
 
 module.exports = {User, Response};
