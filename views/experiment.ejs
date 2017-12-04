@@ -72,7 +72,7 @@
       <div class="sixteen wide column">
         <br>
         <div class="ui raised padded text container">
-          <h3>Bitte sprechen Sie die folgende Aussage:</h3>
+          <h3 id="sentence"></h3>
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@
         <img class="ui mini left floated image" src="/images/robot.png">
       </div>
       <div class="middle aligned fourteen wide column">
-        <p>Wenn Sie auf "Nein" klicken, ist das Experiment vorbei und
+        <p>Wenn Sie auf "Ja" klicken, ist das Experiment vorbei und
         Sie dürfen nicht mehr teilnehmen.</p>
       </div>
     </div>
@@ -149,6 +149,10 @@
 const currentItem = <%- JSON.stringify(item) %>;
 // --- UI controller --- //
 const UIController = (function() {
+
+  const lieText = "Bitte sprechen Sie die folgende <strong>Lüge</strong>:";
+  const truthText = "Bitte sprechen Sie die folgende <strong>Wahrheit</strong>:";
+  const probGuess = 0.8;
   // Create a wave object
   let siriWave = new SiriWave({
           container: document.getElementById('siri-container'),
@@ -178,9 +182,14 @@ const UIController = (function() {
       // Hide popup
       $('.ui.modal.rec-audio').modal('hide');
     },
-    showPopUp: function(question) {
+    showPopUp: function(question, lie) {
       // Select text to show and open up the pop-up
       $('#to-repeat').text(question);
+      // Show appealing text according to label
+      if (lie)
+        $('#sentence').html(lieText)
+      else
+        $('#sentence').html(truthText)
       $('.ui.modal.rec-audio').modal({closable: false}).modal('show');
     },
     showLogoutPopUp: function() {
@@ -190,6 +199,14 @@ const UIController = (function() {
           window.location = '/end';
         }
       }).modal('show');
+    },
+    showFeedback(lie) {
+      if (Math.random() < probGuess) {
+        // Show nasty robot "Ich glaube Sie sprechen die Wahrheit!"
+      }
+      else {
+        // Show robot "Ich glaube Sie lügen!"
+      }
     }
   };
 })();
@@ -283,6 +300,8 @@ const controller = (function(UICtr, RecCtr, DataModel) {
   const uiController = UICtr;
   const recController = RecCtr;
   const model = DataModel;
+  const lieProb = 0.5;
+  const semiRecProb  = 0.75;
 
   const sendRequest = function(data) {
     // Create a request instance
@@ -327,16 +346,16 @@ const controller = (function(UICtr, RecCtr, DataModel) {
     // Response -1
     else if (response === -1) {
       // Decide whether to show
-      if (Math.random() > 0.5) {
-        if (Math.random() > 0.5) {
+      if (Math.random() < semiRecProb) {
+        if (Math.random() < lieProb) {
           // Lie
           LIE = true;
-          uiController.showPopUp(currentItem.content);
+          uiController.showPopUp(currentItem.content, LIE);
         }
         else {
           // Tell the truth
           LIE = false;
-          uiController.showPopUp(currentItem.inverted);
+          uiController.showPopUp(currentItem.inverted, LIE);
         }
       }
       else {
@@ -348,16 +367,16 @@ const controller = (function(UICtr, RecCtr, DataModel) {
     // Response 1
     else if (response === 1) {
       // Decide whether to show
-      if (Math.random() > 0.5) {
-        if (Math.random() > 0.5) {
+      if (Math.random() < semiRecProb) {
+        if (Math.random() < lieProb) {
           // Lie
           LIE = true;
-          uiController.showPopUp(currentItem.inverted);
+          uiController.showPopUp(currentItem.inverted, LIE);
         }
         else {
           // Tell the truth
           LIE = false;
-          uiController.showPopUp(currentItem.content);
+          uiController.showPopUp(currentItem.content, LIE);
         }
       }
       else {
@@ -368,28 +387,28 @@ const controller = (function(UICtr, RecCtr, DataModel) {
     }
     // Response 2
     else if (response === 2) {
-      if (Math.random() > 0.5) {
+      if (Math.random() < lieProb) {
         // Lie
         LIE = true;
-        uiController.showPopUp(currentItem.inverted);
+        uiController.showPopUp(currentItem.inverted, LIE);
       }
       else {
         // Tell the truth
         LIE = false;
-        uiController.showPopUp(currentItem.content);
+        uiController.showPopUp(currentItem.content, LIE);
       }
     }
     // Response -2
     else if (response === -2) {
-      if (Math.random() > 0.5) {
+      if (Math.random() < lieProb) {
         // Lie
         LIE = true;
-        uiController.showPopUp(currentItem.content);
+        uiController.showPopUp(currentItem.content, LIE);
       }
       else {
         // Tell the truth
         LIE = false;
-        uiController.showPopUp(currentItem.inverted);
+        uiController.showPopUp(currentItem.inverted, LIE);
       }
     }
   });

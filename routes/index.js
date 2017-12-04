@@ -6,7 +6,7 @@ const express          = require('express'),
       multer           = require("multer"),
       upload           = multer(),
       {mongoose}       = require("../db/mongoose-config"),
-      {User} = require("../db/models/userModel");
+      {User}           = require("../db/models/userModel");
 
 
 /* GET home page. */
