@@ -72,28 +72,31 @@
       <div class="sixteen wide column">
         <br>
         <div class="ui raised padded text container">
-          <h3 id="sentence"></h3>
+          <h3 class="to-fade-out">Bitte sprechen Sie die folgende <span></span> aus:</h3>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="sixteen wide column">
         <div class="ui raised padded text container">
-          <h2 id="to-repeat"><em></em></h2>
+          <h2 class="to-fade-out" id="to-repeat"><em></em></h2>
         </div>
       </div>
     </div>
     <div class="row">
       <div class="sixteen wide column">
         <div class="ui raised container">
-          <div id="siri-container">
-            <!-- Wave animation will play here -->
+          <div class="ui container">
+            <div id="siri-container">
+              <!-- Wave animation will play here -->
+            </div>
+            <div class="ui hidden text loader"><h3>Roboter denkt...</h3></div>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div id="record-trigger" class="ui bottom attached blue button">
+  <div id="record-trigger" class="ui bottom attached blue button to-fade-out">
     <i class="unmute icon"></i>
     Aufnahme starten
   </div>
@@ -116,6 +119,21 @@
   <div class="actions">
     <div class="ui approve green button">Ja</div>
     <div class="ui cancel red button">Nein</div>
+  </div>
+</div>
+
+<!-- Feedback modal -->
+<div class="ui modal robot-feedback">
+  <div class="header">Roboter sagt:</div>
+  <div class="content">
+    <div class="ui stackable grid container">
+      <div class="column">
+        <img class="ui mini left floated image" src="/images/robot.png">
+      </div>
+      <div class="middle aligned fourteen wide column">
+        <h3 id="fb-text"></h3>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -150,8 +168,6 @@ const currentItem = <%- JSON.stringify(item) %>;
 // --- UI controller --- //
 const UIController = (function() {
 
-  const lieText = "Bitte sprechen Sie die folgende <strong>Lüge</strong>:";
-  const truthText = "Bitte sprechen Sie die folgende <strong>Wahrheit</strong>:";
   const probGuess = 0.8;
   // Create a wave object
   let siriWave = new SiriWave({
@@ -162,6 +178,8 @@ const UIController = (function() {
           color: '#d9dde2',
           frequency: 1
     });
+  // Add reference to span elements
+  let whatToSay = $('span');
   // Public methods
   return {
     lockPopUp: function() {
@@ -173,6 +191,7 @@ const UIController = (function() {
       siriWave.start();
     },
     hidePopUp: function() {
+      // This function is called 2 seconds after recording finished
       // Stop wave
       siriWave.stop();
       // Hide siri wave
@@ -187,10 +206,11 @@ const UIController = (function() {
       $('#to-repeat').text(question);
       // Show appealing text according to label
       if (lie)
-        $('#sentence').html(lieText)
+        whatToSay.text("Lüge");
       else
-        $('#sentence').html(truthText)
-      $('.ui.modal.rec-audio').modal({closable: false}).modal('show');
+        whatToSay.text("Wahrheit");
+        // Show actual pop-up
+      $('.ui.modal.rec-audio').modal({closable: false,}).modal('show');
     },
     showLogoutPopUp: function() {
       $('.ui.modal.quit-exp').modal({
@@ -201,12 +221,28 @@ const UIController = (function() {
       }).modal('show');
     },
     showFeedback(lie) {
-      if (Math.random() < probGuess) {
-        // Show nasty robot "Ich glaube Sie sprechen die Wahrheit!"
-      }
-      else {
-        // Show robot "Ich glaube Sie lügen!"
-      }
+      // Stop siri wave for speed
+      siriWave.stop();
+      $('#siri-container').css("visibility", 'hidden');
+      $('.to-fade-out').css("visibility", 'hidden');
+      $('.loader').toggleClass("hidden");
+      setTimeout(function() {
+        // Show robot feedback in 1 second
+        if (Math.random() < probGuess) {
+          if (lie)
+            $('#fb-text').text("Ich schätze, Sie haben gleich gelogen!");
+          else
+            $('#fb-text').text("Ich schätze, Sie haben die Wahrheit gesagt!");
+        }
+        else {
+          if (lie)
+            $('#fb-text').text("Ich schätze, Sie haben die Wahrheit gesagt!");
+          else
+            $('#fb-text').text("Ich schätze, Sie haben gleich gelogen!");
+        }
+        // Show robot feedback
+        $('.ui.modal.robot-feedback').modal({closable: false}).modal('show');
+      }, 1000);
     }
   };
 })();
@@ -328,8 +364,9 @@ const controller = (function(UICtr, RecCtr, DataModel) {
     // Assumes blob and lie flag set
     let blob = recController.getBlob();
     let formData = model.getFormData(true, blob, LIE);
-    sendRequest(formData);
-    uiController.hidePopUp();
+    // Show feedback and redirect in 3 seconds
+    uiController.showFeedback(LIE);
+    setTimeout(sendRequest, 5000, formData);
   };
 
   // Set event listener on response button

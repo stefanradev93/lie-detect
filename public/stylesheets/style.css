@@ -54,3 +54,11 @@ body {
     -webkit-transform: rotate(45deg);
     transform: rotate(45deg);
 }
+
+.screenshot {
+  opacity: 0.5;
+}
+
+div h3 span {
+  text-decoration: underline;
+}
