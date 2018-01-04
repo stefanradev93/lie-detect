@@ -1,8 +1,0 @@
-91.196.50.33 - - [21/Dec/2017:12:23:20 +0100] "GET http://testp3.pospr.waw.pl/testproxy.php HTTP/1.1" 404 3768 "-" "Mozilla/5.0 (Windows NT 5.1; rv:32.0) Gecko/20100101 Firefox/31.0"
-118.139.177.119 - - [21/Dec/2017:15:49:53 +0100] "GET /w00tw00t.at.ISC.SANS.DFind:) HTTP/1.1" 400 0 "-" "-"
-185.94.188.27 - - [21/Dec/2017:16:33:36 +0100] "GET / HTTP/1.1" 200 11629 "-" "-"
-158.85.81.114 - - [21/Dec/2017:18:21:34 +0100] "GET / HTTP/1.1" 400 0 "-" "-"
-46.17.44.124 - - [21/Dec/2017:18:28:11 +0100] "GET / HTTP/1.1" 200 11639 "-" "libwww-perl/6.29"
-118.139.177.119 - - [21/Dec/2017:19:05:48 +0100] "GET /w00tw00t.at.ISC.SANS.DFind:) HTTP/1.1" 400 0 "-" "-"
-139.59.133.235 - - [21/Dec/2017:20:52:19 +0100] "GET / HTTP/1.0" 200 11494 "-" "masscan/1.0 (https://github.com/robertdavidgraham/masscan)"
-63.246.129.165 - - [21/Dec/2017:23:33:04 +0100] "GET /var/log/ HTTP/1.1" 404 3761 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36"
