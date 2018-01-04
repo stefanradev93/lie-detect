@@ -1,33 +1,38 @@
-#!/usr/bin/env node
-
 /**
  * Module dependencies.
  */
-const app = require('../app'),
-      debug = require('debug')('lie-detect:server'),
+const app    = require('../app'),
+      debug  = require('debug')('lie-detect:server'),
       config = require('../config'),
-      https = require('https');
+	  http   = require('http'),
+      https  = require('https');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || config.PORT);
-app.set('port', port);
+app.set('secPort', config.HTTPS_PORT);
+app.set('port', config.HTTP_PORT);
 
 /**
  * Create HTTP server.
  */
 
- const server = https.createServer(config.HTTPS, app);
+ const httpServer = http.createServer(app);
+ const httpsServer = https.createServer(config.HTTPS, app);
 /**
  * Listen on provided port, on all network interfaces.
  */
-server.listen(port, () => {
-  console.log(`The experiment server running at: https://localhost:${port}`);
+httpServer.listen(app.get('port'), () => {
+  console.log(`The http experiment server running at: http://liedetect.de:${app.get('port')}`);
 });
 
-server.on('error', onError);
+httpsServer.listen(app.get('secPort'), () => {
+  console.log(`The https experiment server running at: https://liedetect.de:${app.get('secPort')}`);
+});
+
+httpsServer.on('error', onError);
+httpServer.on('error', onError);
 
 /**
  * Normalize a port into a number, string, or false.

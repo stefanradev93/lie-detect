@@ -67,7 +67,8 @@ const UserSchema = mongoose.Schema({
   }]
 },
 {
-  timestamps: true
+  timestamps: true,
+  usePushEach: true
 });
 
 UserSchema.methods.generateAuthToken = function() {

@@ -63,6 +63,7 @@ router.post("/register", (req, res, next) => {
     })
     .then((token) => {
       req.session.userToken = token;
+      req.session.score = 0;
       res.header("x-exp-auth", token);
       res.redirect("/experiment");
     })
@@ -95,7 +96,8 @@ router.get("/experiment", (req, res, next) => {
         // Extract only content and inverted from item
         let itemStripped = _.pick(item, ["content", "inverted"]);
         // Render questionnaire page with current item
-        res.render("experiment", {item: itemStripped});
+        res.render("experiment", {item: itemStripped,
+                                  score: req.session.score});
       })
       .catch((err) => {
         console.log("Could not get next item: ", err);
@@ -134,6 +136,9 @@ router.post("/upload", upload.single("blob"), (req, res, next) => {
   else {
     // Extract all aprameters and audio buffer
     let body = _.pick(req.body, ["item", "response", "recorded", "label"]);
+    // Extract feedback
+    let {feedback} = _.pick(req.body, ["feedback"]);
+    feedback = Number(feedback);
     let {buffer} = _.pick(req.file, ["buffer"]);
     User.findByToken(req.session.userToken)
     .then((user) => {
@@ -148,6 +153,7 @@ router.post("/upload", upload.single("blob"), (req, res, next) => {
       return fse.outputFile(pathToWav, Buffer.from(new Uint8Array(buffer)));
     })
     .then(() => {
+      req.session.score = req.session.score + feedback;
       res.status(200).send('Response uploaded!');
     })
     .catch((err) => {

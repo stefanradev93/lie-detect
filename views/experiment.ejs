@@ -1,6 +1,6 @@
 <% include partials/header %>
 
-<body class>
+<body class="main">
 
 <!-- Scale -->
 <div class="question-wrap">
@@ -9,7 +9,7 @@
       <div class="one column row">
         <div class="column">
           <div class="ui raised padded text container">
-            <h3><%= item.content %></h3>
+            <h3 class="heading-tertiary"><%= item.content %></h3>
           </div>
         </div>
       </div>
@@ -72,7 +72,7 @@
       <div class="sixteen wide column">
         <br>
         <div class="ui raised padded text container">
-          <h3 class="to-fade-out">Bitte sprechen Sie die folgende <span></span> aus:</h3>
+          <h3 class="to-fade-out">Bitte sprechen Sie die folgende <span class="to-say"></span> aus:</h3>
         </div>
       </div>
     </div>
@@ -90,7 +90,7 @@
             <div id="siri-container">
               <!-- Wave animation will play here -->
             </div>
-            <div class="ui hidden text loader"><h3>Roboter denkt...</h3></div>
+            <div class="ui hidden text loader"><h3>Roboter analysiert...</h3></div>
           </div>
         </div>
       </div>
@@ -127,13 +127,29 @@
   <div class="header">Roboter sagt:</div>
   <div class="content">
     <div class="ui stackable grid container">
-      <div class="column">
-        <img class="ui mini left floated image" src="/images/robot.png">
+      <div class="row">
+        <div class="column">
+          <img class="ui mini left floated image" src="/images/robot.png">
+        </div>
+        <div class="middle aligned fourteen wide column">
+          <h3 id="fb-text">&nbsp;</h3>
+        </div>
       </div>
-      <div class="middle aligned fourteen wide column">
-        <h3 id="fb-text"></h3>
+      <div class="row">
+        <div class="center aligned fourteen wide column">
+          <div class="ui centered container">
+            <img src="/images/plus.png" class="ui middle aligned small image" id="fb-img">
+          </div>
+        </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Score counter -->
+<div class="ui container score-counter">
+  <div class="ui container segment">
+    <p class="font-meidum">Erreichte Punktzahl: <span><%= score %></span></p>
   </div>
 </div>
 
@@ -165,10 +181,14 @@
 <script type="text/javascript">
 // --- Obtain current item --- //
 const currentItem = <%- JSON.stringify(item) %>;
+
 // --- UI controller --- //
 const UIController = (function() {
 
-  const probGuess = 0.8;
+  let posSrc = '/images/plus.png';
+  let negSrc = '/images/minus.png';
+  const probLieGuess = 0.6;
+  const probTruthGuess = 0.8;
   // Create a wave object
   let siriWave = new SiriWave({
           container: document.getElementById('siri-container'),
@@ -179,7 +199,7 @@ const UIController = (function() {
           frequency: 1
     });
   // Add reference to span elements
-  let whatToSay = $('span');
+  let whatToSay = $('span.to-say');
   // Public methods
   return {
     lockPopUp: function() {
@@ -187,6 +207,8 @@ const UIController = (function() {
       $('#siri-container').css("visibility", 'visible');
       // Disable record button
       $('#record-trigger').toggleClass("disabled");
+      // Hide text
+      $('.to-fade-out').css("visibility", 'hidden');
       // Start wave
       siriWave.start();
     },
@@ -209,6 +231,27 @@ const UIController = (function() {
         whatToSay.text("Lüge");
       else
         whatToSay.text("Wahrheit");
+      // Determine feedback a priori
+      if (lie) {
+          if (Math.random() < probLieGuess) {
+            $('#fb-text').text("Ich glaube, Sie haben gelogen!");
+            $("#fb-img").attr('src', negSrc);
+          }
+          else {
+            $('#fb-text').text("Ich glaube, Sie haben die Wahrheit gesagt!");
+            $("#fb-img").attr('src', posSrc);
+          }    
+        }
+        else {
+          if (Math.random() < probTruthGuess) {
+            $('#fb-text').text("Ich glaube, Sie haben die Wahrheit gesagt!");
+            $("#fb-img").attr('src', posSrc);
+          }
+          else {
+            $('#fb-text').text("Ich glaube, Sie haben gelogen!");
+            $("#fb-img").attr('src', negSrc);
+          }
+        }
         // Show actual pop-up
       $('.ui.modal.rec-audio').modal({closable: false,}).modal('show');
     },
@@ -228,19 +271,6 @@ const UIController = (function() {
       $('.loader').toggleClass("hidden");
       setTimeout(function() {
         // Show robot feedback in 1 second
-        if (Math.random() < probGuess) {
-          if (lie)
-            $('#fb-text').text("Ich schätze, Sie haben gleich gelogen!");
-          else
-            $('#fb-text').text("Ich schätze, Sie haben die Wahrheit gesagt!");
-        }
-        else {
-          if (lie)
-            $('#fb-text').text("Ich schätze, Sie haben die Wahrheit gesagt!");
-          else
-            $('#fb-text').text("Ich schätze, Sie haben gleich gelogen!");
-        }
-        // Show robot feedback
         $('.ui.modal.robot-feedback').modal({closable: false}).modal('show');
       }, 1000);
     }
@@ -297,6 +327,14 @@ const DataModel = (function() {
     // Returns the response as a Number
     return Number($("input[name='response']:checked").val());
   };
+  const getFeedbackValue = function() {
+    // Determines whether the robot guessed or not
+    // +1 if true, -1
+    let source = $("#fb-img").attr('src');
+    if (source.includes("plus")) 
+      return 1;
+    return -1;
+  };
   const getItem = function() {
     // Returns the content of the item
     return currentItem.content;
@@ -307,6 +345,7 @@ const DataModel = (function() {
     let data = new FormData();
     let response = getResponse();
     let item = getItem();
+    let feedback = getFeedbackValue();
     // Append response and item
     data.append('response', response);
     data.append('item', item);
@@ -321,6 +360,7 @@ const DataModel = (function() {
     data.append('recorded', recordedItem);
     data.append('blob', blob);
     data.append('label', label);
+    data.append('feedback', feedback);
     return data;
   };
   return {
@@ -465,6 +505,5 @@ const controller = (function(UICtr, RecCtr, DataModel) {
 
 })(UIController, RecController, DataModel);
 </script>
-
 </body>
 </html>

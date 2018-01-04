@@ -6,13 +6,26 @@ const express       = require('express'),
       bodyParser    = require('body-parser'),
       indexRoute    = require('./routes/index'),
       config        = require('./config'),
+      ipfilter      = require('express-ipfilter').IpFilter,
       session       = require("express-session");
-
 
 
 
 // --- Initialize express --- //
 const app = express();
+
+// --- Allow only our IPs for debugging --- //
+// let ips = ['141.70.80.5', '156.67.143.139'];
+// app.use(ipfilter(ips, {mode: 'allow'}));
+
+
+// --- Redirect http to https --- //
+app.all('*', (req, res, next) => {
+	if (req.secure) {
+		return next();
+	}
+	res.redirect('https://' + req.hostname + ':' + app.get('secPort') + req.url);
+});
 
 // --- Serve public directory and make sure
 app.use(express.static(path.join(__dirname, 'public')));

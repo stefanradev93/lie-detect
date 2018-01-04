@@ -12,21 +12,16 @@
               Beschreibung des Experiments
             </h1>
             <div class="ui left aligned raised padded text segment" id="info">
-              <p>In der folgenden	Studie	werden	Sie	aufgefordert	anzugeben, wie sehr bestimmte	Aussagen
-              auf	Sie	zutreffen. Eine	Beispiel-Aussage wäre:</p><br>
-              <img class="ui image padded segment screenshot" src="/images/question-example.png">
-              <br><br>
-              <p>In unregelmäßigen Abständen bitten	wir	Sie, die	zuvor	gezeigte	Aussage, oder die
-              Umkehrung	dieser Aussage, in ein	Mikrofon zu	sprechen.
-              Zum	Beispiel	taucht	folgende	Anweisung	auf:</p><br>
-              <img class="ui image padded segment screenshot" src="/images/record-example.png">
-              <br>
-              <p>Das	von	Ihnen	Gesprochene	wird	im	Anschluss	überprüft	und	Sie	bekommen unmittelbar
-              Rückmeldung,	ob	Ihre	Aussage	als	Wahrheit	oder	Lüge	klassifiziert	wurde. Ihre	Aufgabe	ist
-              es,	dass	möglichst	viele	Ihrer	Aussagen	als	Wahrheit	deklariert werden.</p>
-              <p>Sobald	Sie	auf	‚Aufnahme	starten’	klicken,	verschwindet	die	Aussage	und	Sie	können	mit
-              dem	Sprechen	beginnen.	Die	Aufnahme	stoppt	automatisch	nach 3 Sekunden und	die	Studie
-              wird fortgeführt.</p>
+              <p>In der folgenden	Studie	werden	Sie	gelegentlich aufgefordert, entweder zu lügen oder aber die Wahrheit zu sagen. Das Ziel ist es, bei Ihren Lügen nicht ertappt zu werden. Je häufiger Ihnen das gelingt, desto mehr Punkte erhalten Sie.</p>
+              <p>Sie werden zunächst aufgefordert, auf einer Skala anzugeben, wie sehr bestimmte Aussagen auf Sie zutreffen.</p>
+              <p>Ein Beispiel:</p>
+              <p><em>Ich bin offen gegenüber neuen Erfahrungen.</em></p>
+              <p>Sie werden nach Angabe Ihrer Antwort zufällig dann entweder der Lügen- oder aber der Wahrheitsbedingung zugeordnet.</p>
+              <p>Wenn Sie der Aussage zugestimmt haben, Sie also offen gegenüber neuen Erfahrungen sind, und in der Wahrheitsbedingung sind, dann werden Sie aufgefordert, die Aussage "Ich bin offen gegnüber neuen Erfahrungen" zu sprechen.</p>
+              <p>Wenn Sie der Aussage zugestimmt haben, nun aber zufällig in der Lügenbedingung sind, so werden Sie aufgefordert, z. B. die folgende Aussage zu sprechen: "Ich meide es, neue Erfahrungen zu machen". Diese Aussage entspräche dann einer Lüge.</p>
+              <p>Sie entscheiden immer, wann Sie mit der Aufnahme Ihrer Antwort beginnen möchten. Sobald Sie auf <strong>Aufnahme starten</strong> klicken, verschwindet die Aussage und Sie können mit dem Sprechen beginnen.</p>
+              <p>Die Aufnahme stoppt automatisch nach wenigen Sekunden und die Studie wird fortgeführt. </p>
+              <p>Nach jeder gesprochenen Aussage wird ein Algorithmus versuchen zu erkennen, ob Sie die Wahrheit gesprochen haben, oder aber gelogen haben. Sie bekommen dann unmittelbar Rückmeldung. Sie erhalten immer einen Punkt, wenn der Algorithmus entscheidet, dass Ihre Aussage der <strong>Wahrheit</strong> entspricht. Je glaubwürdiger Sie also sind, desto höher Ihre endgültige Punktzahl.</p>
             </div>
           </div>
         </div>
@@ -40,7 +35,7 @@
               Demografische Daten
             </h1>
             <div class="ui raised padded text segment">
-            <form class="ui form" method="POST" action="register">
+            <form class="ui form" method="POST" action="/register">
               <div class="two fields">
                 <div class="field">
                   <label>Alter</label>
@@ -48,7 +43,7 @@
                 </div>
                 <div class="field">
                   <label>Beruf</label>
-                  <input name="education" placeholder="z.B. Studierende" type="text" required>
+                  <input name="education" placeholder="z.B. Student" type="text" required>
                 </div>
               </div>
               <div class="two fields">

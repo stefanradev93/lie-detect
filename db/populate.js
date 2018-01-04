@@ -1,11 +1,8 @@
-// --- Establish connection to MongoDB --- //
-process.env.MONGODB_URI = "mongodb://localhost:27017/LieDetect";
-const {mongoose}    = require("./mongoose-config"),
-      {Item}        = require("./models/itemModel");
+const mongoose = require("mongoose")
+      config   = require("../config"),
+      {Item}   = require("./models/itemModel");
 
 
-
-// --- Fill database with items --- //
 // NOTE ** This has to be done only once,
 // when item collection/selection is finished
 
@@ -160,13 +157,26 @@ const items = [
   {"content":"Ich bin neidisch, wenn andere Glück haben","inverted":"Ich schätze es, wenn andere Glück haben"},
   {"content":"Herausforderungen begegne ich mutig","inverted":"Herausforderungen begegne ich feige"}];
 
-// --- Fill database with items --- //
-items.forEach((item) => {
-  let dbItem = Item(item);
-  dbItem.save();
+
+// --- Use built-in promise library --- //
+mongoose.Promise = global.Promise;
+
+// --- Connect to database --- //
+mongoose.connect(config.MONGODB_URI, {
+  useMongoClient: true
+})
+.then(() => {
+  console.log(`MongoDB server running at ${config.MONGODB_URI}...`); 
+  console.log("Populating database...");
+  items.forEach((item) => {
+	  let dbItem = Item(item);
+	  dbItem.save();
+  });
+  console.log("Population finished successfully. You can now exit the script (Ctrl + C)");
+}, (e) => {
+  console.log("Could not connect to database:", e);
 });
 
 
 
-// --- Close connection --- //
-mongoose.connection.close();
+
