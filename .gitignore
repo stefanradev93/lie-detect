@@ -3,6 +3,7 @@ config.js
 public/
 data/
 security/
-http_docs/
+httpdocs/
+error_docs/
 logs/
 
