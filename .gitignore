@@ -2,3 +2,7 @@ node_modules/
 config.js
 public/
 data/
+security/
+http_docs/
+logs/
+
