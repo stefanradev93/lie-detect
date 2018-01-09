@@ -1,4 +1,5 @@
 const express       = require('express'),
+	  fs            = require('fs'),
       path          = require('path'),
       favicon       = require('serve-favicon'),
       logger        = require('morgan'),
@@ -15,8 +16,13 @@ const express       = require('express'),
 const app = express();
 
 // --- Allow only our IPs for debugging --- //
-// let ips = ['141.70.80.5', '156.67.143.139'];
-// app.use(ipfilter(ips, {mode: 'allow'}));
+let ips = ['141.70.80.5',          // Stefan
+		   '156.67.143.139',       // Ulf
+		   '147.142.248.100',      // Ivan
+		   '46.5.19.30',		   // weitere...
+           '46.5.0.17'
+];
+app.use(ipfilter(ips, {mode: 'allow'}));
 
 
 // --- Redirect http to https --- //
@@ -31,13 +37,18 @@ app.all('*', (req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts', express.static(__dirname + '/node_modules/recordrtc/'));
 
-// View engine setup
+// --- View engine setup --- //
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+// --- Logging settings --- //
+app.use(logger('common', {
+    stream: fs.createWriteStream('./access-log/access.log', {flags: 'a'})
+}));
+app.use(logger('dev'));
+
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-//app.use(logger('dev'));
 // ---- Set up body parser so that audio files can also be read --- //
 app.use(bodyParser.urlencoded({extended: true, limit: '50mb'}));
 app.use(bodyParser.raw({ type: 'audio/wav', limit: '50mb' }));

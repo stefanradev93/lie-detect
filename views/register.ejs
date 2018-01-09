@@ -84,9 +84,125 @@
       </div>
     </div>
   </div>
-
+	
+	<!-- Modal window -->
+	<div class="ui modal rec-test">
+		<div class="ui stackable grid container center aligned">
+			<div class="row">
+				<div class="sixteen wide column">
+					<br>
+					<div class="ui raised padded text container">
+						<p>Bitte Klicken Sie auf "Testaufnahme Starten" und erlauben Sie die Mikrofonaufnahme für die Dauer des Experiments. Wenn die Aufnahme erfolgreich ist, können Sie loslegen. </p>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+      			<div class="sixteen wide column">
+					<div class="ui raised container">
+					  <div class="ui container">
+						<div id="siri-container">
+						  <!-- Wave animation will play here -->
+						</div>
+					  </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="test-trigger" class="ui bottom attached blue button">
+			<i class="unmute icon"></i>
+			Testaufnahme Starten
+		</div>
+	</div>
+	
+	
+<script type="text/javascript" src="javascripts/siriwave.js"></script>
+<script type="text/javascript" src="javascripts/RecordRTC.min.js"></script>
 <script type="text/javascript">
-  $('.ui.dropdown').dropdown();
+	
+ // Activate dropdown
+ $('.ui.dropdown').dropdown();
+	
+// --- Recorder Tester --- //
+const RecordingTester = (function() {
+	
+  let siriWave = new SiriWave({
+		container: document.getElementById('siri-container'),
+		width: 200,
+		height: 100,
+		speed: 0.02,
+		color: '#d9dde2',
+		frequency: 1
+  });
+  let recorder = null;
+  let mediaStream = null;
+  const REC_DURATION = 2 * 1000;
+	
+  const captureUserMedia = function(successCallback) {
+    // Initializes getUserMedia
+    let session = {
+        audio: true,
+        video: false
+    };
+	// Handle compatibilitty	
+	navigator.getUserMedia = (
+    navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia);
+		
+	if (typeof navigator.mediaDevices.getUserMedia === 'undefined') {
+    	navigator.getUserMedia(session, successCallback, (error)=> {
+        alert('Die Aufnahme konnte nicht gestartet werden. Bitte, stellen Sie sicher, dass Sie die Mikrofonaufnahme im Browser erlaubt haben und versuchen Sie erneut.');
+		window.location = '/';
+        console.error(error);
+    	});
+	} 
+	else {
+    	navigator.mediaDevices.getUserMedia(session).then(successCallback).catch((error) => {
+        alert('Die Aufnahme konnte nicht gestartet werden. Bitte, stellen Sie sicher, dass Sie die Mikrofonaufnahme im Browser erlaubt haben und versuchen Sie erneut.');
+		window.location = '/';
+        console.error(error);
+    	});
+	}
+  };
+	
+   const record = function(onTimeout)  {
+      /*
+      Creates a recorder and a stream, and starts recoridng
+      Accepts a callback to execute on recorder timeout
+       */
+       captureUserMedia(function(stream) {
+           // Initialize stream and recorder
+           mediaStream = stream;
+           recorder = RecordRTC(stream, {
+             type: 'audio',
+             recorderType: StereoAudioRecorder,
+             mimeType: 'audio/wav'
+           });
+           // Set duration of recording
+           recorder.setRecordingDuration(REC_DURATION).onRecordingStopped(onTimeout);
+           // Start recorder
+           recorder.startRecording();
+       });
+  };
+        
+  // Set event listener on test button
+  $('#test-trigger').on("click", function() {
+	 // Make container visible 
+	 $('#siri-container').css("visibility", 'visible');
+     // Disable record button
+     $('#test-trigger').toggleClass("disabled");
+	// Start wave
+    siriWave.start();
+	// Record
+	record( function(){ $('.ui.modal.rec-test').modal('hide'); siriWave.stop(); } );
+  });	
+ 
+})();
+	
+// Start after 1 second
+setTimeout( () => {$('.ui.modal.rec-test').modal({closable: false}).modal('show'); }, 1000);
+	
 </script>
 
 <% include partials/footer %>

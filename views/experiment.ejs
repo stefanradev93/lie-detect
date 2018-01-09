@@ -192,7 +192,7 @@ const UIController = (function() {
   // Create a wave object
   let siriWave = new SiriWave({
           container: document.getElementById('siri-container'),
-          width: 200,
+          width: 250,
           height: 100,
           speed: 0.02,
           color: '#d9dde2',
@@ -289,10 +289,28 @@ const RecController = (function() {
         audio: true,
         video: false
     };
-    navigator.getUserMedia(session, successCallback, function(error) {
-        alert('Unable to capture audio. Please abort experiment.');
+    // Handle compatibilitty	
+	navigator.getUserMedia = (
+    navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia);
+	// Robust audio capturing	
+	if (typeof navigator.mediaDevices.getUserMedia === 'undefined') {
+    	navigator.getUserMedia(session, successCallback, (error)=> {
+        alert('Es gab ein Problem mit der Aufnahme. Bitte, stellen Sie sicher, dass Sie die Mikrofonaufnahme im Browser erlaubt haben und versuchen Sie erneut.');
+		window.location = '/experiment';
         console.error(error);
-    });
+    	});
+	} 
+	else {
+    	navigator.mediaDevices.getUserMedia(session).then(successCallback).catch((error) => {
+        alert('Es gab ein Problem mit der Aufnahme. Bitte, stellen Sie sicher, dass Sie die Mikrofonaufnahme im Browser erlaubt haben und versuchen Sie erneut.');
+		window.location = '/experiment';
+        console.error(error);
+    	});
+	}
+  };
   };
   // Public methods
   return {
@@ -331,8 +349,9 @@ const DataModel = (function() {
     // Determines whether the robot guessed or not
     // +1 if true, -1
     let source = $("#fb-img").attr('src');
-    if (source.includes("plus")) 
-      return 1;
+    if (source.includes("plus")) {
+		return 1;
+	}
     return -1;
   };
   const getItem = function() {
@@ -393,7 +412,7 @@ const controller = (function(UICtr, RecCtr, DataModel) {
         else
           // Handle error (not really possible)
           alert("Es gab ein Problem mit der Aufnahme. " +
-                "Bitte, stellen Sie sicher, dass Ihr Mikrofon angeschlossne ist!");
+                "Bitte, stellen Sie sicher, dass Ihr Mikrofon angeschlossen ist!");
           window.location = '/experiment';
       }
     }
