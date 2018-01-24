@@ -16,13 +16,8 @@ const express       = require('express'),
 const app = express();
 
 // --- Allow only our IPs for debugging --- //
-let ips = ['141.70.80.5',          // Stefan
-		   '156.67.143.139',       // Ulf
-		   '147.142.248.100',      // Ivan
-		   '46.5.19.30',		   // weitere...
-           '46.5.0.17'
-];
-app.use(ipfilter(ips, {mode: 'allow'}));
+// ips = [];
+// app.use(ipfilter(ips, {mode: 'allow'}));
 
 
 // --- Redirect http to https --- //
