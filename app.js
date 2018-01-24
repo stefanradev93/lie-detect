@@ -1,5 +1,5 @@
 const express       = require('express'),
-	  fs            = require('fs'),
+      fs            = require('fs'),
       path          = require('path'),
       favicon       = require('serve-favicon'),
       logger        = require('morgan'),
