@@ -1,2 +1,2 @@
 # lie-detect
-A basic lie-detection experiment
+A psychology experiment web server built with express.
