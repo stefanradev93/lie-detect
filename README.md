@@ -1,2 +1,2 @@
 # lie-detect
-A psychology experiment web server built with express.
+Full backend and frontend code for the LieDetect project at Heidelberg University.
